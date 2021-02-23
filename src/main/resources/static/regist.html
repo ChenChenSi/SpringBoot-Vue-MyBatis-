@@ -33,19 +33,22 @@
 						<table cellpadding="0" cellspacing="0" border="0"
 							class="form_table">
 							<tr>
+								<!--整个都是异步通讯，不提交表单，所以表单中input的name没有意义-->
 								<td valign="middle" align="right">
 									用户名:
 								</td>
 								<td valign="middle" align="left">
-									<input type="text" class="inputgri" name="username" />
+<!--									将表单绑定到Vue属性中-->
+									<input type="text" class="inputgri" v-model="user.username" />
 								</td>
 							</tr>
+
 							<tr>
 								<td valign="middle" align="right">
 									真实姓名:
 								</td>
 								<td valign="middle" align="left">
-									<input type="text" class="inputgri" name="name" />
+									<input type="text" class="inputgri" v-model="user.realName" />
 								</td>
 							</tr>
 							<tr>
@@ -53,7 +56,7 @@
 									密码:
 								</td>
 								<td valign="middle" align="left">
-									<input type="password" class="inputgri" name="pwd" />
+									<input type="password" class="inputgri" v-model="user.password" />
 								</td>
 							</tr>
 							<tr>
@@ -62,9 +65,9 @@
 								</td>
 								<td valign="middle" align="left">
 									男
-									<input type="radio" class="inputgri" name="sex" value="m" checked="checked"/>
+									<input type="radio" class="inputgri" v-model="user.sex" value="男" checked="checked"/>
 									女
-									<input type="radio" class="inputgri" name="sex" value="f"/>
+									<input type="radio" class="inputgri" v-model="user.sex" value="女"/>
 								</td>
 							</tr>
 							
@@ -73,7 +76,7 @@
 									验证码:
 								</td>
 								<td valign="middle" align="left">
-									<input type="text" class="inputgri" name="number" />
+									<input type="text" class="inputgri" v-model="code" />
 								</td>
 
 								<td>
@@ -87,7 +90,7 @@
 							</tr>
 						</table>
 						<p>
-							<input type="submit" class="button" value="Submit &raquo;" />
+							<input type="buttton" @click="register" class="button" value="Submit &raquo;" />
 						</p>
 					</form>
 				</div>
@@ -111,11 +114,19 @@
 		//从register.html中可得知，整个都是由wrap包裹起来
 		//所以作用域传wrap进来即可
 		el:"#wrap",
+
 		//作用域中获取的数据
 		data:{
 			//定义一个属性url，用来存从后端取得的验证码数据
 			//让页面调用这个属性，即可得到验证码图片
 			url:"",
+
+			//user对象
+			user:{
+				sex:"男"
+			},
+			//验证码
+			code:"",
 		},
 		methods:{
 			//用来更换验证码
@@ -130,9 +141,27 @@
 				//异步请求：请求验证码图片
 				axios.get("http://localhost:8989/ems_vue/user/getImage?time="+Math.random()).then(res=>{
 					console.log(res.data);
-					//把图片赋给url属性
+					// 把图片赋给url属性
 					_this.url = res.data;
+
+
 				});
+			},
+			//用来注册用户信息
+			register(){
+				//this.code: 相当于地址栏传参，使得UserController能直接得到code
+				axios.post("http://localhost:8989/ems_vue/user/register?code="+this.code,this.user).then(res=>{
+					console.log(res.data);
+					// 给用户一个提示
+					// true：注册成功，是否跳转页面
+					// false：注册失败
+					if (res.data.state){
+						alert(res.data.msg+"点击确定跳转至登录页面！");
+						location.href="http://localhost:8989/ems_vue/login.html"
+					}else{
+						alert(res.data.msg);
+					}
+				})
 			}
 		},
 		//页面创建之前进行处理

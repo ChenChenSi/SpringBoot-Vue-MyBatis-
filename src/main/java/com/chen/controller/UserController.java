@@ -1,15 +1,18 @@
 package com.chen.controller;
 
+import com.chen.entity.User;
+import com.chen.service.UserService;
 import com.chen.utils.VerifyCodeUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Base64Utils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author 淡
@@ -17,10 +20,50 @@ import java.io.IOException;
  * @description
  * @create 2021-02-23 12:44
  */
+@Slf4j
 @RestController
 @CrossOrigin//允许跨域
 @RequestMapping("user")
 public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+
+    /*
+    * 用来处理用户注册方法
+    * 返回一个注册信息到前台
+    * */
+    @PostMapping("register")
+    // 使用@RequestBody的目的是：为了能直接封装对象
+    // Axios传数据时，是直接以JSON字符串的形式传
+    // 必须要用@RequestBody，才能自动把其转换成我们要的User对象
+    // HttpServletRequest: 存储了之前最近一次传给浏览器的验证码信息
+    public Map<String, Object> register( @RequestBody User user,String code, HttpServletRequest request){
+        log.info("用户信息：[{}]",user.toString());
+        log.info("用户输入的验证码：[{}]",code);
+        Map<String, Object> map = new HashMap<>();
+
+        try {
+            String key = (String) request.getServletContext().getAttribute("code");
+            if(key.equalsIgnoreCase(code)){
+                //1、调用业务方法
+                userService.register(user);
+                map.put("state",true);
+                map.put("msg","提示：注册成功！");
+            }else{
+                throw new RuntimeException("验证码异常");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            map.put("state",false);
+            map.put("msg","提示："+e.getMessage());
+        }
+        return map;
+    }
+
+
+
 
 
     /**
