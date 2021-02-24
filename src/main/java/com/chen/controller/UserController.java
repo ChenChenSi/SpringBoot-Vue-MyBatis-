@@ -27,8 +27,42 @@ import java.util.Map;
 public class UserController {
 
     @Autowired
+    //其实这个就是个工具对象，通过它调用业务方法
+    //业务方法写在UserService接口的实现类：UserServiceImpl里
     private UserService userService;
 
+    
+    /**
+     * @description 处理用户登录请求
+     * <br>
+     * @param 	
+     * @return java.util.Map<java.lang.String, java.lang.Object>
+     * @author 淡
+     * @since 2021/2/23 21:39
+     */
+    @PostMapping("login")
+    public Map<String, Object> login(@RequestBody User user){
+        log.info("当前登陆用户信息：[{}]",user.toString());
+        Map<String, Object> map = new HashMap<>();
+        try {
+            User userDB = userService.login(user);
+            map.put("state",true);
+            map.put("msg","登陆成功");
+            map.put("user",userDB);
+        }catch (Exception e){
+            e.printStackTrace();
+            map.put("state", false);
+            map.put("msg",e.getMessage());
+        }
+
+        return map;
+        
+    }
+    
+    
+    
+    
+    
 
     /*
     * 用来处理用户注册方法

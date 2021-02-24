@@ -39,7 +39,7 @@
 									username:
 								</td>
 								<td valign="middle" align="left">
-									<input type="text" class="inputgri" name="name" />
+									<input type="text" class="inputgri" v-model="user.username" />
 								</td>
 							</tr>
 							<tr>
@@ -47,14 +47,14 @@
 									password:
 								</td>
 								<td valign="middle" align="left">
-									<input type="password" class="inputgri" name="pwd" />
+									<input type="password" class="inputgri" v-model="user.password" />
 								</td>
 							</tr>
 						</table>
 						<p>
-							<input type="submit" class="button" value="Submit &raquo;" />
+							<input type="button" @click="login" class="button" value="Submit &raquo;" />
 							&nbsp;&nbsp;
-							<a href="">注册</a>
+							<a href="http://localhost:8989/ems_vue/regist.html">注册</a>
 						</p>
 					</form>
 				</div>
@@ -67,3 +67,44 @@
 		</div>
 	</body>
 </html>
+<!--vue导入-->
+<script src="/ems_vue/js/vue.js"></script>
+<!--异步请求导入-->
+<script src="/ems_vue/js/axios.min.js"></script>
+<script>
+	<!--	vue实例-->
+	var app = new Vue({
+		//挂载作用域
+		//从register.html中可得知，整个都是由wrap包裹起来
+		//所以作用域传wrap进来即可
+		el:"#wrap",
+		//作用域中获取的数据
+		data:{
+			//user对象，用来保存用户数据
+			user:{
+
+			},
+
+		},
+		methods:{
+			//用户登录
+			login(){
+				console.log(this.user);
+				axios.post("http://localhost:8989/ems_vue/user/login",this.user).then(res=>{
+					console.log(res.data);
+					if (res.data.state){
+						alert(res.data.msg+"，点击确定进入主页！");
+						//将登录用户信息放入localStorage （Key value），类似Java中的Map
+						localStorage.setItem("user",JSON.stringify(res.data.user));
+						location.href="http://localhost:8989/ems_vue/emplist.html";
+					}else{
+						alert(res.data.msg);
+					}
+				});
+
+			}
+		}
+
+
+	})
+</script>

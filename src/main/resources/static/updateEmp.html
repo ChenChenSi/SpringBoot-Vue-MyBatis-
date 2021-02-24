@@ -10,21 +10,22 @@
 	<body>
 		<div id="wrap">
 			<div id="top_content">
-					<div id="header">
-						<div id="rightheader">
-							<p>
-								2009/11/20
-								<br />
-							</p>
-						</div>
-						<div id="topheader">
-							<h1 id="title">
-								<a href="#">Main</a>
-							</h1>
-						</div>
-						<div id="navigation">
-						</div>
+				<div id="header">
+					<div id="rightheader">
+						<p>
+							2009/11/20
+							<br/>
+							<a href="javascript:;" @click="logout">安全退出</a>>
+						</p>
 					</div>
+					<div id="topheader">
+						<h1 id="title">
+							<a href="/ems_vue/emplist.html">main</a>
+						</h1>
+					</div>
+					<div id="navigation">
+					</div>
+				</div>
 				<div id="content">
 					<p id="whereami">
 					</p>
@@ -89,3 +90,44 @@
 		</div>
 	</body>
 </html>
+<!--vue导入-->
+<script src="/ems_vue/js/vue.js"></script>
+<!--异步请求导入-->
+<script src="/ems_vue/js/axios.min.js"></script>
+<script>
+	<!--	vue实例-->
+	var app = new Vue({
+		//挂载作用域
+		//从register.html中可得知，整个都是由wrap包裹起来
+		//所以作用域传wrap进来即可
+		el: "#wrap",
+		//作用域中获取的数据
+		data: {	//数据
+			user: {}	//用来存放用户登录信息
+		},
+		methods: {	//自定义函数
+			//安全退出
+			logout(){
+				localStorage.removeItem("user");
+				location.reload(true);//刷新页面
+			}
+		},
+
+		created() {		//生命周期函数，页面渲染前调用
+			//取出在登录后，后台返回的用户信息
+			//该信息，以JSON的格式存在localStorage的Item中
+			var userString = localStorage.getItem("user");
+			if (userString) {
+				//按JSON的形式解析数据，并存进user对象中
+				this.user = JSON.parse(userString);
+				//console.log(user);
+			} else {
+				alert("您尚未登录，点击确定跳转至登录！")
+				location.href="http://localhost:8989/ems_vue/login.html";
+			}
+
+		}
+
+
+	})
+</script>
